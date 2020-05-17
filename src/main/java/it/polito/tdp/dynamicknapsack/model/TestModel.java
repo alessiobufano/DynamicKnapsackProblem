@@ -6,6 +6,15 @@ public class TestModel {
 
 		Model m = new Model();
 		
+		m.setModelloProblema(9, 5);
+		
+		System.out.println(m.stampaModello());
+		
+		m.trovaSoluzioneOttimaOrdinata();
+		
+		System.out.println(m.stampaSoluzione());
+		
+		
 	}
 
 }

@@ -18,7 +18,7 @@
          <children>
             <HBox>
                <children>
-                  <Label text="ModalitĂ  di risoluzione:">
+                  <Label text="Modalità  di risoluzione:">
                      <HBox.margin>
                         <Insets left="10.0" top="3.0" />
                      </HBox.margin>

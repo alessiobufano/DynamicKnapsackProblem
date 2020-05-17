@@ -45,12 +45,79 @@ public class FXMLController {
 
     @FXML
     void doNuovoProblema(ActionEvent event) {
-
+    	
+    	this.txtPeriodi.clear();
+    	this.txtVariabili.clear();
+    	this.txtResult.clear();
+    	this.txtTime.setText("");
+    	this.boxRisoluzione.setValue(null);
     }
 
     @FXML
     void doTrovaOttimo(ActionEvent event) {
 
+    	//controlli preliminari per verificare che tutti i parametri siano stati settati:
+    	String metodo = this.boxRisoluzione.getValue();
+    	if(metodo==null) {
+    		this.txtResult.setText("Errore! Per favore seleziona un metodo di risoluzione\n");
+    		return;
+    	}
+    	
+    	String periodi = this.txtPeriodi.getText();
+    	if(periodi==null) {
+    		this.txtResult.setText("Errore! Per favore seleziona il numero di periodi\n");
+    		return;
+    	}
+    	int numPeriodi;
+    	try {
+    		numPeriodi = Integer.parseInt(periodi);
+    	} catch(NumberFormatException e) {
+    		this.txtResult.setText("Errore! Il numero di periodi deve essere un valore numerico intero\n");
+    		return;
+    	}
+    	
+    	String variabili = this.txtVariabili.getText();
+    	if(variabili==null) {
+    		this.txtResult.setText("Errore! Per favore seleziona il numero di variabili\n");
+    		return;
+    	}
+    	int numVariabili;
+    	try {
+    		numVariabili = Integer.parseInt(variabili);
+    	} catch(NumberFormatException e) {
+    		this.txtResult.setText("Errore! Il numero di variabili deve essere un valore numerico intero\n");
+    		return;
+    	}
+    	
+    	//a questo punto tutti i parametri sono stati settati:
+    	this.model.setModelloProblema(numPeriodi, numVariabili);
+    	
+    	long start = System.currentTimeMillis();
+    	if(metodo=="RISOLUZIONE BASE")
+    		this.model.trovaSoluzioneOttima();
+    	else if(metodo=="RISOLUZIONE BASE ORDINATA")
+    		this.model.trovaSoluzioneOttimaOrdinata();
+    	else if(metodo=="RISOLUZIONE BASE PER PROFITTI DECRESCENTI")
+    		this.model.trovaSoluzioneOttimaOrdinataProfittiPercentuali();
+    	else if(metodo=="RISOLUZIONE ORDINATA PER PROFITTI DECRESCENTI") 
+    		this.model.trovaSoluzioneOttimaOrdinataProfittiPercentuali();
+    	long end = System.currentTimeMillis();
+    	double tempo = (double) ((double) ((end-start)/1000));
+    	
+    	if(end-start <= 1000)
+    		this.txtTime.setText("Il tempo necessario per trovare la soluzione ottima è di "+(end-start)+" millisecondi\nusando il metodo di "+metodo.toLowerCase());
+    	else
+    		this.txtTime.setText("Il tempo necessario per trovare la soluzione ottima è di "+tempo+" secondi\nusando il metodo di "+metodo.toLowerCase());
+    	
+    	if(metodo=="RISOLUZIONE ORDINATA PER PROFITTI DECRESCENTI" || metodo=="RISOLUZIONE BASE PER PROFITTI DECRESCENTI")
+    		this.txtResult.setText(model.stampaModelloProfittiPercentuali());
+    	else
+    		this.txtResult.setText(model.stampaModello());
+    	
+    	if(metodo.contains("ORDINATA"))
+    		this.txtResult.appendText("\n"+model.stampaVariabiliOrdinate());
+    	
+    	this.txtResult.appendText("\n"+model.stampaSoluzione());
     }
 
     @FXML
@@ -66,6 +133,8 @@ public class FXMLController {
 
 	public void setModel(Model model) {
 		this.model = model;
+		this.metodiRisoluzione.addAll("RISOLUZIONE BASE", "RISOLUZIONE BASE ORDINATA", "RISOLUZIONE BASE PER PROFITTI DECRESCENTI", "RISOLUZIONE ORDINATA PER PROFITTI DECRESCENTI");
+		this.boxRisoluzione.setItems(metodiRisoluzione);
 	}
 }
 
